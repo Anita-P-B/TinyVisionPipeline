@@ -1,0 +1,5 @@
+Metadata-Version: 2.1
+Name: tiny-vision-pipeline
+Version: 0.1
+Summary: A tiny but mighty image classification pipeline using PyTorch.
+Author: Anita Best

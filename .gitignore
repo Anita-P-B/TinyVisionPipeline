@@ -1,0 +1,18 @@
+# Folders to ignore
+data/
+dragon_env/
+torch_den/
+experiments/
+samples/
+__pycache__/
+
+# Compiled files
+*.py[cod]
+
+# IDEs
+.vscode/
+.idea/
+
+# OS noise
+.DS_Store
+Thumbs.db
