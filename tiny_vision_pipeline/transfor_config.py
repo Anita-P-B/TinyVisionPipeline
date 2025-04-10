@@ -1,6 +1,6 @@
 
 from torchvision import transforms
-from tiny_vision_pipeline import CONSTS
+from tiny_vision_pipeline.CONSTS import CONSTS
 
 # ImageNet normalization values
 cifar10_mean = [0.4914, 0.4822, 0.4465]
