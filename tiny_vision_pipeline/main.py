@@ -14,8 +14,6 @@ from tiny_vision_pipeline.transfor_config import train_transform, test_transform
 from tiny_vision_pipeline.utils.save_utils import save_run_state
 from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test
 
-# test merge conflict
-
 def main():
 
 
