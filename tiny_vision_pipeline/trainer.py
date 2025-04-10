@@ -3,8 +3,9 @@ import os.path
 import torch
 from tqdm import tqdm
 
-from tiny_vision_pipeline import CONSTS
+from tiny_vision_pipeline.CONSTS import CONSTS
 import matplotlib.pyplot as plt
+import json
 
 class Trainer:
     def __init__(self, model, train_loader, val_loader, optimizer, criterion, run_dir, device='cpu'):
@@ -147,3 +148,10 @@ class Trainer:
 
         # save plot of training metrics
         self.plot_metrics()
+        # save final metrics in json
+        final_metrics = {
+            "val_accuracy": self.val_accuracies[-1],
+            "val_loss": self.val_losses[-1]
+        }
+        with open(os.path.join(self.run_dir, "final_metrics.json"), "w") as f:
+            json.dump(final_metrics, f, indent=4)
