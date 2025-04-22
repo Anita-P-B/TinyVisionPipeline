@@ -1,14 +1,17 @@
 import json
 import os
+from collections import Counter
 
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 import torch
 from torch.utils.data import Subset
 from torch.utils.data import random_split
 
-from tiny_vision_pipeline.datasets.data_loader import load_datasets
 from tiny_vision_pipeline.datasets.cifar_warpper import CIFAR10Wrapped
+from tiny_vision_pipeline.datasets.data_loader import load_datasets
+
 
 def create_split_df(x_train_np, y_train_np, x_test_np, y_test_np, val_ratio=0.8, seed=42):
     # Train part
@@ -42,8 +45,7 @@ def create_split_df(x_train_np, y_train_np, x_test_np, y_test_np, val_ratio=0.8,
 
     return split_df
 
-
-def split_val_test(split_df, full_test_dataset, offset):
+def split_val_test(split_df, offset):
     # Use this:
     val_indices = split_df[split_df["split"] == "val"]["index"].to_numpy()
     test_indices = split_df[split_df["split"] == "test"]["index"].to_numpy()
@@ -51,9 +53,9 @@ def split_val_test(split_df, full_test_dataset, offset):
     val_indices_local = val_indices - offset
     test_indices_local = test_indices - offset
 
-    val_dataset = Subset(full_test_dataset, val_indices_local)
-    test_dataset = Subset(full_test_dataset, test_indices_local)
-    return val_dataset, test_dataset
+    # val_dataset = Subset(full_test_dataset, val_indices_local)
+    # test_dataset = Subset(full_test_dataset, test_indices_local)
+    return val_indices_local, test_indices_local
 
 
 def safe_serialize_const_dict(consts):
@@ -93,7 +95,21 @@ def load_split_dataset(run_dir, split_name, transform=None):
     full_test_dataset = CIFAR10Wrapped(x_test_np, y_test_np, transform=transform)
     return Subset(full_test_dataset, subset_indices)
 
+def get_all_labels_from_loader(loader):
+    all_labels = []
+    for _, labels in loader:
+        all_labels.extend(labels.tolist())
+    return all_labels
 
+def plot_class_distribution(dataset, name="Dataset"):
+    labels = get_all_labels_from_loader(dataset)
+    counts = Counter(labels)
+    keys = list(range(10))  # assuming CIFAR-10
+    values = [counts[k] for k in keys]
 
-
-
+    plt.bar(keys, values)
+    plt.xticks(keys, ['airplane', 'automobile', 'bird', 'cat', 'deer', 'dog', 'frog', 'horse', 'ship', 'truck'],
+               rotation=45)
+    plt.title(f"Class Distribution: {name}")
+    plt.savefig(f"../samples/classes_distribution_{name}.png")
+    plt.close()

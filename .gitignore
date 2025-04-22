@@ -5,6 +5,7 @@ torch_den/
 experiments/
 samples/
 __pycache__/
+sweeps/
 
 # Compiled files
 *.py[cod]

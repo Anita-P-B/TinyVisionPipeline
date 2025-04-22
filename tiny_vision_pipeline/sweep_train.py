@@ -24,11 +24,17 @@ master_log_path = os.path.join(sweep_run_dir, "all_sweep_results.csv")
 with open(master_log_path, mode="w", newline="") as log_file:
     # Define sweep options
     sweep_configs = [
-        {"LEARNING_RATE": 1e-2, "AUGMENTATION_PROB": 0.3},
-        {"LEARNING_RATE": 1e-4, "AUGMENTATION_PROB": 0.3},
-        {"LEARNING_RATE": 1e-2, "AUGMENTATION_PROB": 0.6},
-        {"LEARNING_RATE": 1e-4, "AUGMENTATION_PROB": 0.6},
-        {"LEARNING_RATE": 1e-3, "BATCH_SIZE": 16}
+        {"AUGMENTATION_PROB": 0.0},
+
+        { "AUGMENTATION_PROB": 0.1},
+        {"AUGMENTATION_PROB": 0.2},
+
+        # Single augmentation spells
+        { "AUGMENTATION_PROB": 0.1, "AUGMENTATION_TYPE": "flip"},
+        { "AUGMENTATION_PROB": 0.1, "AUGMENTATION_TYPE": "rotate"},
+        { "AUGMENTATION_PROB": 0.1, "AUGMENTATION_TYPE": "jitter"},
+        { "AUGMENTATION_PROB": 0.1, "AUGMENTATION_TYPE": "affine"},
+
     ]
 
     # Auto-collect all hyperparameter keys
@@ -36,7 +42,11 @@ with open(master_log_path, mode="w", newline="") as log_file:
     for cfg in sweep_configs:
         all_keys.update(cfg.keys())
 
-    fieldnames = ["run_dir"] + sorted(all_keys) + ["val_accuracy", "val_loss"]
+    fieldnames =  (
+    ["run_dir"]
+    + sorted(all_keys)
+    + ["val_accuracy", "val_loss", "Train_accuracy", "Train_loss"]
+)
 
     writer = csv.DictWriter(log_file, fieldnames=fieldnames)
     writer.writeheader()
@@ -89,7 +99,8 @@ with open(master_log_path, mode="w", newline="") as log_file:
             with open(metrics_path, "r") as f:
                 metrics = json.load(f)
         else:
-            metrics = {"val_accuracy": None, "val_loss": None}
+            metrics = {"train_accuracy": None,"train_loss": None,
+                       "val_accuracy": None, "val_loss": None}
 
         writer.writerow({
             "run_dir": latest_run_dir,

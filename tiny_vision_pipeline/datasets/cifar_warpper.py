@@ -29,7 +29,7 @@ class CIFAR10Wrapped(torch.utils.data.Dataset):
                 plt.title(f"Transformed_index_{index}_label_{label}", fontsize=8)
                 plt.axis("off")
                 plt.tight_layout()
-                plt.savefig(f"./samples/debug_image_{index}.png")  # Saves instead of showing
+                plt.savefig(f"../samples/debug_image_{index}.png")  # Saves instead of showing
                 plt.close()
         return img, label
 
