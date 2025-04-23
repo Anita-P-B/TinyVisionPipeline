@@ -53,25 +53,39 @@ def main(consts = None):
     model =  MyDragonModel()
     # Define optimizer and loss
     optimizer = torch.optim.Adam(model.parameters(), lr = consts.LEARNING_RATE)
-
-
-    
     criterion = nn.CrossEntropyLoss()
 
-    # make a run_dir to save training parameters
-    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
-    run_dir = os.path.join( consts.RUN_DIR_BASE, f"{ consts.SAVE_PATH}_run_{timestamp}")
-    # save train configurations
-    save_run_state(
-        consts= consts,
-        run_dir = run_dir,
-        data_split_df=split_df)
+    if not consts.SWEEP_MODE and consts.CHECKPOINT_PATH and os.path.isfile(consts.CHECKPOINT_PATH):
+        print(f"🧙‍♂️ Loading checkpoint from {consts.CHECKPOINT_PATH}")
+        checkpoint = torch.load(consts.CHECKPOINT_PATH)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        optimizer.load_state_dict(checkpoint['optimizer_state_dict'])
+        # Move optimizer state tensors to the correct device (CUDA)
+        for state in optimizer.state.values():
+            for k, v in state.items():
+                if isinstance(v, torch.Tensor):
+                    state[k] = v.to(device)
+
+        run_dir = os.path.dirname(consts.CHECKPOINT_PATH)
+        start_epoch = checkpoint.get('epoch', 0)
+        print(f"🔄 Resumed from epoch {start_epoch}")
+    else:
+        print("🛡️ No checkpoint provided, starting from scratch.")
+        start_epoch = 0
+        # make a run_dir to save training parameters
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        run_dir = os.path.join( consts.RUN_DIR_BASE, f"{ consts.SAVE_PATH}_run_{timestamp}")
+        # save train configurations
+        save_run_state(
+            consts= consts,
+            run_dir = run_dir,
+            data_split_df=split_df)
 
     # Initialize Trainer
-    trainer = Trainer(model, train_loader, val_loader, optimizer, criterion,run_dir,  device='cuda' if torch.cuda.is_available() else 'cpu')
+    trainer = Trainer(model, train_loader, val_loader, optimizer, criterion, run_dir,  device='cuda' if torch.cuda.is_available() else 'cpu')
 
     # Train
-    trainer.fit(consts.EPOCHS, run_dir)
+    trainer.fit(consts.EPOCHS, run_dir, start_epoch = start_epoch)
 
 
 

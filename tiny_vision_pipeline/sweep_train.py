@@ -24,11 +24,9 @@ master_log_path = os.path.join(sweep_run_dir, "all_sweep_results.csv")
 with open(master_log_path, mode="w", newline="") as log_file:
     # Define sweep options
     sweep_configs = [
-        {"AUGMENTATION_PROB": 0}
-        # {"LEARNING_RATE": 1e-4, "AUGMENTATION_PROB": 0.3},
-        # {"LEARNING_RATE": 1e-2, "AUGMENTATION_PROB": 0.6},
-        # {"LEARNING_RATE": 1e-4, "AUGMENTATION_PROB": 0.6},
-        # {"LEARNING_RATE": 1e-3, "BATCH_SIZE": 16}
+        {"AUGMENTATION_PROB": 0},
+        { "AUGMENTATION_PROB": 0.1},
+        { "AUGMENTATION_PROB": 0.2}
     ]
 
     # Auto-collect all hyperparameter keys
@@ -49,6 +47,9 @@ with open(master_log_path, mode="w", newline="") as log_file:
         # Create default for comparison
         default_config = Config()
         consts = Config()
+
+        consts.SWEEP_MODE = True
+
         consts.update_from_dict(config)
 
         # Find changed keys

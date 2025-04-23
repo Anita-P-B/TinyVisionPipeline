@@ -3,7 +3,7 @@ import os.path
 import torch
 from tqdm import tqdm
 
-from tiny_vision_pipeline.CONSTS import CONSTS
+
 import matplotlib.pyplot as plt
 import json
 
@@ -115,8 +115,8 @@ class Trainer:
         plt.close()
         print(f"📊 Metrics plot saved to: {plot_path}")
 
-    def fit(self, epochs, checkpoint_path=None):
-        for epoch in range(epochs):
+    def fit(self, epochs, checkpoint_path=None, start_epoch = 0):
+        for epoch in range(start_epoch, epochs):
             print(f"Epoch {epoch + 1}/{epochs}")
 
             train_loss, train_acc = self.train_step()
@@ -128,7 +128,8 @@ class Trainer:
             self.val_losses.append(val_loss)
             self.val_accuracies.append(val_acc)
 
-            print(f"Epoch {epoch + 1}/{epochs}")
+            current_epoch = epoch + 1
+            print(f"Epoch {current_epoch}/{epochs}")
             print(f"Train Loss: {train_loss:.4f}, Accuracy: {train_acc:.4f}")
             print(f"Val Loss:  {val_loss:.4f}, Accuracy: {val_acc:.4f}")
 
@@ -136,9 +137,14 @@ class Trainer:
             if val_acc > self.best_accuracy:
                 self.best_accuracy = val_acc
                 if checkpoint_path:
-                    formatted_path = f"{CONSTS.SAVE_PATH}_acc_{val_acc:.4f}_loss_{val_loss:.4f}.pt"
+
+                    formatted_path = f"{os.path.basename(self.run_dir)}_acc_{val_acc:.4f}_loss_{val_loss:.4f}.pt"
                     full_path = os.path.join(self.run_dir, formatted_path)
-                    torch.save(self.model.state_dict(), full_path)
+                    torch.save({
+                        'epoch': current_epoch,
+                        'model_state_dict': self.model.state_dict(),
+                        'optimizer_state_dict': self.optimizer.state_dict()
+                    },  full_path)
                     print(f"🧪 Best model saved: {full_path}")
 
             # Epoch summary
