@@ -35,16 +35,16 @@ def main(consts = None):
     )
 
     # define train and test transform pipelines
-    train_transform = get_transform(consts, is_training= True)
-    val_transform = get_transform(consts, is_training=False)
+    train_pipeline = get_transform(consts, is_training= True)
+    val_pipeline = get_transform(consts, is_training=False)
 
     # Wrap the full test set
-    full_test_dataset = CIFAR10Wrapped(x_test_np, y_test_np, transform=val_transform)
+    full_test_dataset = CIFAR10Wrapped(x_test_np, y_test_np, transform=val_pipeline)
     offset = len(x_train_np)
 
     val_dataset, test_dataset = split_val_test(split_df,full_test_dataset,offset)
 
-    cifar_train = CIFAR10Wrapped(x_train_np, y_train_np, transform = train_transform)
+    cifar_train = CIFAR10Wrapped(x_train_np, y_train_np, transform = train_pipeline)
     train_loader = DataLoader(cifar_train, batch_size= consts.BATCH_SIZE, shuffle=True, num_workers=0)  # after debugginh change to num_workers = os.cpu_count() // 2
     val_loader = DataLoader(val_dataset, batch_size=32, num_workers=0)  # after debugginh change to num_workers = os.cpu_count() // 2
     test_loader = DataLoader(test_dataset, batch_size=32, num_workers=0) # after debugginh change to num_workers = os.cpu_count() // 2

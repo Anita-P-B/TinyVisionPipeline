@@ -15,6 +15,7 @@ class Config:
         VAL_RATIO=0.8, #ratio of validation set out of full test set
         LEARNING_RATE=1e-3,
         AUGMENTATION_PROB=0.5,
+        NORM = "mean" # None|"mean"
     ):
         self.IMAGE_SIZE = IMAGE_SIZE
         self.CHANNELS = CHANNELS
@@ -32,6 +33,7 @@ class Config:
         self.VAL_RATIO = VAL_RATIO
         self.LEARNING_RATE = LEARNING_RATE
         self.AUGMENTATION_PROB = AUGMENTATION_PROB
+        self.NORM = NORM
 
     def update_from_dict(self, config_dict: dict, verbose=True):
         for key, value in config_dict.items():
