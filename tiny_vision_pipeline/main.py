@@ -10,7 +10,7 @@ from tiny_vision_pipeline.datasets.cifar_warpper import CIFAR10Wrapped
 from tiny_vision_pipeline.datasets.data_loader import load_datasets
 from tiny_vision_pipeline.models.MobileNetV3 import MyDragonModel
 from tiny_vision_pipeline.trainer import Trainer
-from tiny_vision_pipeline.transfor_config import train_transform, test_transform
+from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.save_utils import save_run_state
 from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test
 
@@ -34,8 +34,12 @@ def main(consts = None):
         seed = consts.SPLIT_SEED
     )
 
+    # define train and test transform pipelines
+    train_transform = get_transform(consts, is_training= True)
+    val_transform = get_transform(consts, is_training=False)
+
     # Wrap the full test set
-    full_test_dataset = CIFAR10Wrapped(x_test_np, y_test_np, transform=test_transform)
+    full_test_dataset = CIFAR10Wrapped(x_test_np, y_test_np, transform=val_transform)
     offset = len(x_train_np)
 
     val_dataset, test_dataset = split_val_test(split_df,full_test_dataset,offset)

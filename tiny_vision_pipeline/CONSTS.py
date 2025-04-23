@@ -9,10 +9,10 @@ class Config:
         CLASSES=None,
         SAVE_PATH="test_dragon",
         LOAD_MODEL="marvelous_dragon_100_epochs_acc_0.8010_loss_0.5814.pt",
-        LOAD_PATH="../experiments/marvelous_dragon_100_epochs_run_20250408_164505",
-        RUN_DIR_BASE="../experiments",
+        LOAD_PATH="./experiments/marvelous_dragon_100_epochs_run_20250408_164505",
+        RUN_DIR_BASE="./experiments",
         SPLIT_SEED=42,
-        VAL_RATIO=0.8,
+        VAL_RATIO=0.8, #ratio of validation set out of full test set
         LEARNING_RATE=1e-3,
         AUGMENTATION_PROB=0.5,
     ):
