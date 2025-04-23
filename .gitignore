@@ -3,6 +3,7 @@ data/
 dragon_env/
 torch_den/
 experiments/
+sweeps/
 samples/
 __pycache__/
 
