@@ -51,8 +51,21 @@ def split_val_test(split_df, full_test_dataset, offset):
     val_indices_local = val_indices - offset
     test_indices_local = test_indices - offset
 
-    val_dataset = Subset(full_test_dataset, val_indices_local)
-    test_dataset = Subset(full_test_dataset, test_indices_local)
+    # Extract data and targets for val
+    val_data = full_test_dataset.data[val_indices_local]
+    val_targets = [full_test_dataset.targets[i] for i in val_indices_local]
+    val_transform = getattr(full_test_dataset, 'transform', None)
+
+    # Extract data and targets for test
+    test_data = full_test_dataset.data[test_indices_local]
+    test_targets = [full_test_dataset.targets[i] for i in test_indices_local]
+    test_transform = getattr(full_test_dataset, 'transform', None)
+
+    # Wrap them
+    val_dataset = CIFAR10Wrapped(val_data, val_targets, transform=val_transform)
+    test_dataset = CIFAR10Wrapped(test_data, test_targets, transform=test_transform)
+
+
     return val_dataset, test_dataset
 
 
@@ -119,5 +132,21 @@ def log_metrics_dynamic(csv_path, new_metrics):
             writer.writeheader()
         writer.writerow(aligned_row)
 
+def get_small_dataset(train_dataset, val_dataset):
+    small_train_size = int(len(train_dataset) * 0.1)
+    small_val_size = int(len(val_dataset) * 0.1)
+
+    # Slice the underlying data and targets
+    small_train_data = train_dataset.data[:small_train_size]
+    small_train_targets = train_dataset.targets[:small_train_size]
+
+    small_val_data = val_dataset.data[:small_val_size]
+    small_val_targets = val_dataset.targets[:small_val_size]
+
+    # Create new wrapped dataset instances
+    small_train_dataset = CIFAR10Wrapped(small_train_data, small_train_targets, transform=train_dataset.transform)
+    small_val_dataset = CIFAR10Wrapped(small_val_data, small_val_targets, transform=val_dataset.transform)
+
+    return small_train_dataset, small_val_dataset
 
 

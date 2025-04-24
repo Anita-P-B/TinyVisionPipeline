@@ -156,6 +156,8 @@ class Trainer:
         self.plot_metrics()
         # save final metrics in json
         final_metrics = {
+            "train_accuracy": self.train_accuracies[-1],
+            "train_loss": self.train_losses[-1],
             "val_accuracy": self.val_accuracies[-1],
             "val_loss": self.val_losses[-1]
         }

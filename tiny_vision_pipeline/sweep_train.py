@@ -24,9 +24,10 @@ master_log_path = os.path.join(sweep_run_dir, "all_sweep_results.csv")
 with open(master_log_path, mode="w", newline="") as log_file:
     # Define sweep options
     sweep_configs = [
-        {"AUGMENTATION_PROB": 0},
-        { "AUGMENTATION_PROB": 0.1},
-        { "AUGMENTATION_PROB": 0.2}
+        {"LEARNING_RATE": 0.001},
+        { "LEARNING_RATE": 0.001, "BATCH_SIZE": 64 },
+        {  "LEARNING_RATE": 0.0005, "BATCH_SIZE": 32 },
+        {"LEARNING_RATE": 0.0005, "BATCH_SIZE": 64}
     ]
 
 
