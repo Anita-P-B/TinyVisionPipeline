@@ -1,6 +1,6 @@
 import json
 import os
-
+import csv
 import numpy as np
 import pandas as pd
 import torch
@@ -94,6 +94,30 @@ def load_split_dataset(run_dir, split_name, transform=None):
     return Subset(full_test_dataset, subset_indices)
 
 
+def log_metrics_dynamic(csv_path, new_metrics):
+    # Check if CSV exists
+    file_exists = os.path.isfile(csv_path)
+
+    # Collect fieldnames dynamically
+    fieldnames = list(new_metrics.keys())
+
+    # If file exists, merge with existing header
+    if file_exists:
+        with open(csv_path, mode='r', newline='') as f:
+            reader = csv.DictReader(f)
+            existing_fields = reader.fieldnames or []
+            # Merge and maintain order
+            fieldnames = list(dict.fromkeys(existing_fields + fieldnames))
+
+    # Prepare aligned row (fill missing fields with '')
+    aligned_row = {field: new_metrics.get(field, '') for field in fieldnames}
+
+    # Write data
+    with open(csv_path, mode='a', newline='') as f:
+        writer = csv.DictWriter(f, fieldnames=fieldnames)
+        if not file_exists:
+            writer.writeheader()
+        writer.writerow(aligned_row)
 
 
 

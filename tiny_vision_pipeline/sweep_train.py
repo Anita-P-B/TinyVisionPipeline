@@ -4,7 +4,7 @@ import json
 import os
 from copy import deepcopy
 from datetime import datetime
-
+from tiny_vision_pipeline.utils.utils import log_metrics_dynamic
 import tiny_vision_pipeline
 from tiny_vision_pipeline.CONSTS import Config
 from tiny_vision_pipeline.main import main as run_training
@@ -28,17 +28,6 @@ with open(master_log_path, mode="w", newline="") as log_file:
         { "AUGMENTATION_PROB": 0.1},
         { "AUGMENTATION_PROB": 0.2}
     ]
-
-    # Auto-collect all hyperparameter keys
-    all_keys = set()
-    for cfg in sweep_configs:
-        all_keys.update(cfg.keys())
-
-    fieldnames = ["run_dir"] + sorted(all_keys) + ["val_accuracy", "val_loss"]
-
-    writer = csv.DictWriter(log_file, fieldnames=fieldnames)
-    writer.writeheader()
-
 
 
     for i, config in enumerate(sweep_configs):
@@ -90,12 +79,14 @@ with open(master_log_path, mode="w", newline="") as log_file:
             with open(metrics_path, "r") as f:
                 metrics = json.load(f)
         else:
-            metrics = {"val_accuracy": None, "val_loss": None}
+            metrics = {"train_accuracy": None, "train_loss": None,
+                       "val_accuracy": None, "val_loss": None}
 
-        writer.writerow({
+        row_data = {
             "run_dir": latest_run_dir,
             **config,
             **metrics
-        })
+        }
+        log_metrics_dynamic(master_log_path, row_data)
 
 print(f"\n📜 Sweep complete! Results saved to: {master_log_path}")

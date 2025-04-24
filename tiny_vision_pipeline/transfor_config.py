@@ -14,18 +14,9 @@ def get_transform(config, is_training = True):
 
         # augmentation
         transforms.RandomApply([
-            transforms.RandomHorizontalFlip(p=1.0)
-        ], p=config.AUGMENTATION_PROB),
-
-        transforms.RandomApply([
-            transforms.RandomRotation(15)
-        ], p=config.AUGMENTATION_PROB),
-
-        transforms.RandomApply([
-            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2)
-        ], p=config.AUGMENTATION_PROB),
-
-        transforms.RandomApply([
+            transforms.RandomHorizontalFlip(p=1.0),
+            transforms.RandomRotation(15),
+            transforms.ColorJitter(brightness=0.2, contrast=0.2, saturation=0.2),
             transforms.RandomAffine(degrees=0, translate=(0.1, 0.1))
         ], p=config.AUGMENTATION_PROB),
 
@@ -37,7 +28,6 @@ def get_transform(config, is_training = True):
         transforms.Resize((config.IMAGE_SIZE, config.IMAGE_SIZE)),
         transforms.ToTensor()
     ]
-
 
     if is_training:
         transform_list = train_transform_list
