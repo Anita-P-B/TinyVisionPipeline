@@ -6,7 +6,8 @@ import pandas as pd
 import torch
 from torch.utils.data import Subset
 from torch.utils.data import random_split
-
+from tiny_vision_pipeline.models.MobileNetV3 import MyDragonModel
+from tiny_vision_pipeline.models.MobileNetV3_small import SmallDragonModel
 from tiny_vision_pipeline.datasets.data_loader import load_datasets
 from tiny_vision_pipeline.datasets.cifar_warpper import CIFAR10Wrapped
 
@@ -107,30 +108,19 @@ def load_split_dataset(run_dir, split_name, transform=None):
     return Subset(full_test_dataset, subset_indices)
 
 
-def log_metrics_dynamic(csv_path, new_metrics):
-    # Check if CSV exists
-    file_exists = os.path.isfile(csv_path)
+def log_metrics_dynamic(master_log_path, row_data):
+    # Load existing log if it exists
+    if os.path.exists(master_log_path):
+        df = pd.read_csv(master_log_path)
+    else:
+        df = pd.DataFrame()
 
-    # Collect fieldnames dynamically
-    fieldnames = list(new_metrics.keys())
+    # Append the new row
+    new_row = pd.DataFrame([row_data])
+    df = pd.concat([df, new_row], ignore_index=True)
 
-    # If file exists, merge with existing header
-    if file_exists:
-        with open(csv_path, mode='r', newline='') as f:
-            reader = csv.DictReader(f)
-            existing_fields = reader.fieldnames or []
-            # Merge and maintain order
-            fieldnames = list(dict.fromkeys(existing_fields + fieldnames))
-
-    # Prepare aligned row (fill missing fields with '')
-    aligned_row = {field: new_metrics.get(field, '') for field in fieldnames}
-
-    # Write data
-    with open(csv_path, mode='a', newline='') as f:
-        writer = csv.DictWriter(f, fieldnames=fieldnames)
-        if not file_exists:
-            writer.writeheader()
-        writer.writerow(aligned_row)
+    # Save back to CSV (UTF-8 encoding to avoid weird characters)
+    df.to_csv(master_log_path, index=False, encoding="utf-8")
 
 def get_small_dataset(train_dataset, val_dataset):
     small_train_size = int(len(train_dataset) * 0.1)
@@ -156,4 +146,13 @@ def get_optimizer(model,learning_rate, weight_decay):
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     return optimizer
 
-
+def get_model(model_name, **kwargs):
+    MODEL_REGISTRY = {
+        "mobilenet_v3_small": SmallDragonModel,
+        "mobilenet_v3_large": MyDragonModel,
+    }
+    try:
+        model_class = MODEL_REGISTRY[model_name]
+        return model_class(**kwargs)
+    except KeyError:
+        raise ValueError(f"Model '{model_name}' is not in the registry.")

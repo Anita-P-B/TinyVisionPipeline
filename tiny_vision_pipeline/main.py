@@ -13,10 +13,10 @@ from tiny_vision_pipeline.models.MobileNetV3 import MyDragonModel
 from tiny_vision_pipeline.trainer import Trainer
 from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.save_utils import save_run_state
-from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test, get_small_dataset, get_optimizer
+from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test, get_small_dataset
+from tiny_vision_pipeline.utils.utils import get_model, get_optimizer
 
-
-def main(consts=None, user_config = None):
+def main(consts=None, user_config=None):
     consts = consts or CONSTS
 
     # Apply overrides if provided (manual run)
@@ -57,7 +57,6 @@ def main(consts=None, user_config = None):
     cifar_val, cifar_test = split_val_test(split_df, full_test_dataset, offset)
     cifar_train = CIFAR10Wrapped(x_train_np, y_train_np, transform=train_pipeline)
 
-
     if consts.SMALL_DATASET:
         cifar_train, cifar_val = get_small_dataset(cifar_train, cifar_val)
 
@@ -69,7 +68,7 @@ def main(consts=None, user_config = None):
                              num_workers=0)  # after debugginh change to num_workers = os.cpu_count() // 2
 
     # Define your model
-    model = MyDragonModel()
+    model = get_model(consts.MODEL)
     # Define optimizer and loss
     optimizer = get_optimizer(model, consts.LEARNING_RATE, consts.WEIGHT_DECAY)
     criterion = nn.CrossEntropyLoss()
@@ -104,6 +103,7 @@ def main(consts=None, user_config = None):
     trainer = Trainer(model, train_loader, val_loader, optimizer, criterion, run_dir,
                       device='cuda' if torch.cuda.is_available() else 'cpu')
 
+    print(f"📦 Using {'small' if consts.SMALL_DATASET else 'full'} dataset for this sweep.")
     # Train
     trainer.fit(consts.EPOCHS, run_dir, start_epoch=start_epoch)
 
@@ -123,5 +123,4 @@ if __name__ == '__main__':
     # Remove keys with None values (those not passed via CLI)
     user_config = {k.upper(): v for k, v in args_dict.items() if v is not None}
 
-
-    main(user_config = user_config)
+    main(user_config=user_config)

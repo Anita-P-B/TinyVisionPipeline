@@ -2,11 +2,11 @@
 import torch.nn as nn
 import torchvision.models as models
 
-class MyDragonModel(nn.Module):
+class SmallDragonModel(nn.Module):
     def __init__(self, num_classes=10):
         super().__init__()
         # Load MobileNetV3Large without pretrained weights (random init)
-        self.base_model = models.mobilenet_v3_large(weights=None)
+        self.base_model = models.mobilenet_v3_small(weights = None)
 
         # Dynamically get the correct feature size
         feature_dim = self.base_model.classifier[0].in_features

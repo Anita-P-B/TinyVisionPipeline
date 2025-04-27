@@ -8,6 +8,7 @@ class Config:
         BATCH_SIZE=32,
         EPOCHS=50,
         CLASSES=None,
+        MODEL = "mobilenet_v3_small",  #| "mobilenet_v3_large" | "mobilenet_v3_small"
         LEARNING_RATE=5e-4,
         WEIGHT_DECAY = 1e-4,
         AUGMENTATION_PROB=0,
@@ -38,6 +39,7 @@ class Config:
             "airplane", "automobile", "bird", "cat", "deer",
             "dog", "frog", "horse", "ship", "truck"
         ]
+        self.MODEL = MODEL
         self.LEARNING_RATE = LEARNING_RATE
         self.WEIGHT_DECAY = WEIGHT_DECAY
         self.AUGMENTATION_PROB = AUGMENTATION_PROB
