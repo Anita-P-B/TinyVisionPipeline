@@ -3,12 +3,13 @@ class Config:
     def __init__(
         self,
         # general constants
-        IMAGE_SIZE=32,
+        IMAGE_SIZE=64,
         CHANNELS=3,
         BATCH_SIZE=32,
         EPOCHS=50,
         CLASSES=None,
-        LEARNING_RATE=1e-3,
+        LEARNING_RATE=5e-4,
+        WEIGHT_DECAY = 1e-4,
         AUGMENTATION_PROB=0,
         NORM=None,  # None|"mean"
 
@@ -38,6 +39,7 @@ class Config:
             "dog", "frog", "horse", "ship", "truck"
         ]
         self.LEARNING_RATE = LEARNING_RATE
+        self.WEIGHT_DECAY = WEIGHT_DECAY
         self.AUGMENTATION_PROB = AUGMENTATION_PROB
         self.NORM = NORM
 

@@ -149,4 +149,11 @@ def get_small_dataset(train_dataset, val_dataset):
 
     return small_train_dataset, small_val_dataset
 
+def get_optimizer(model,learning_rate, weight_decay):
+    if weight_decay is None:
+        optimizer =  torch.optim.Adam(model.parameters(), lr=learning_rate)
+    else:
+        optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
+    return optimizer
+
 

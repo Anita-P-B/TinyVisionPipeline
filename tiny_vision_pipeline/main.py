@@ -13,7 +13,7 @@ from tiny_vision_pipeline.models.MobileNetV3 import MyDragonModel
 from tiny_vision_pipeline.trainer import Trainer
 from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.save_utils import save_run_state
-from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test, get_small_dataset
+from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test, get_small_dataset, get_optimizer
 
 
 def main(consts=None, user_config = None):
@@ -71,7 +71,7 @@ def main(consts=None, user_config = None):
     # Define your model
     model = MyDragonModel()
     # Define optimizer and loss
-    optimizer = torch.optim.Adam(model.parameters(), lr=consts.LEARNING_RATE)
+    optimizer = get_optimizer(model, consts.LEARNING_RATE, consts.WEIGHT_DECAY)
     criterion = nn.CrossEntropyLoss()
 
     if not consts.SWEEP_MODE and consts.CHECKPOINT_PATH and os.path.isfile(consts.CHECKPOINT_PATH):
