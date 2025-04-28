@@ -9,8 +9,9 @@ class Config:
         EPOCHS=50,
         CLASSES=None,
         MODEL = "mobilenet_v3_small",  #| "mobilenet_v3_large" | "mobilenet_v3_small"
-        LEARNING_RATE=5e-4,
-        WEIGHT_DECAY = 1e-4,
+        LEARNING_RATE=1e-3,
+        DROPOUT_RATE = 0.3,
+        WEIGHT_DECAY = None,
         AUGMENTATION_PROB=0,
         NORM=None,  # None|"mean"
 
@@ -41,6 +42,7 @@ class Config:
         ]
         self.MODEL = MODEL
         self.LEARNING_RATE = LEARNING_RATE
+        self.DROPOUT_RATE = DROPOUT_RATE
         self.WEIGHT_DECAY = WEIGHT_DECAY
         self.AUGMENTATION_PROB = AUGMENTATION_PROB
         self.NORM = NORM

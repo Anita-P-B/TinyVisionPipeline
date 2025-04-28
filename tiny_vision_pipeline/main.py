@@ -9,12 +9,12 @@ from torch.utils.data import DataLoader
 from tiny_vision_pipeline.CONSTS import CONSTS
 from tiny_vision_pipeline.datasets.cifar_warpper import CIFAR10Wrapped
 from tiny_vision_pipeline.datasets.data_loader import load_datasets
-from tiny_vision_pipeline.models.MobileNetV3 import MyDragonModel
+from tiny_vision_pipeline.models.MobileNetV3 import DragonModel
 from tiny_vision_pipeline.trainer import Trainer
 from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.save_utils import save_run_state
 from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test, get_small_dataset
-from tiny_vision_pipeline.utils.utils import get_model, get_optimizer
+from tiny_vision_pipeline.utils.utils import get_optimizer
 
 def main(consts=None, user_config=None):
     consts = consts or CONSTS
@@ -68,7 +68,7 @@ def main(consts=None, user_config=None):
                              num_workers=0)  # after debugginh change to num_workers = os.cpu_count() // 2
 
     # Define your model
-    model = get_model(consts.MODEL)
+    model = DragonModel(model_name = consts.MODEL, dropout_rate= consts.DROPOUT_RATE)
     # Define optimizer and loss
     optimizer = get_optimizer(model, consts.LEARNING_RATE, consts.WEIGHT_DECAY)
     criterion = nn.CrossEntropyLoss()

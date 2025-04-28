@@ -6,8 +6,6 @@ import pandas as pd
 import torch
 from torch.utils.data import Subset
 from torch.utils.data import random_split
-from tiny_vision_pipeline.models.MobileNetV3 import MyDragonModel
-from tiny_vision_pipeline.models.MobileNetV3_small import SmallDragonModel
 from tiny_vision_pipeline.datasets.data_loader import load_datasets
 from tiny_vision_pipeline.datasets.cifar_warpper import CIFAR10Wrapped
 
@@ -146,13 +144,10 @@ def get_optimizer(model,learning_rate, weight_decay):
         optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=weight_decay)
     return optimizer
 
-def get_model(model_name, **kwargs):
-    MODEL_REGISTRY = {
-        "mobilenet_v3_small": SmallDragonModel,
-        "mobilenet_v3_large": MyDragonModel,
-    }
-    try:
-        model_class = MODEL_REGISTRY[model_name]
-        return model_class(**kwargs)
-    except KeyError:
-        raise ValueError(f"Model '{model_name}' is not in the registry.")
+def merge_configs(sweep_config, cli_args):
+    merged = sweep_config.copy()
+    for key, value in vars(cli_args).items():
+        # Only update if CLI arg is not None
+        if value is not None:
+            merged[key.upper()] = value
+    return merged

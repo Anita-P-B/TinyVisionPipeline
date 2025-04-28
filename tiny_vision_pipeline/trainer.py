@@ -138,7 +138,7 @@ class Trainer:
                 self.best_accuracy = val_acc
                 if checkpoint_path:
 
-                    formatted_path = f"{os.path.basename(self.run_dir)}_acc_{val_acc:.4f}_loss_{val_loss:.4f}.pt"
+                    formatted_path = f"train_acc_{train_acc:.2f}_train_loss_{train_loss:.2f}_val_acc_{val_acc:.2f}val_loss_{val_loss:.2f}.pt"
                     full_path = os.path.join(self.run_dir, formatted_path)
                     torch.save({
                         'epoch': current_epoch,

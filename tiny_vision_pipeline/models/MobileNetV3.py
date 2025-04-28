@@ -2,24 +2,25 @@
 import torch.nn as nn
 import torchvision.models as models
 
-class MyDragonModel(nn.Module):
-    def __init__(self, num_classes=10):
+class DragonModel(nn.Module):
+    def __init__(self, num_classes=10, model_name='mobilenet_v3_small', dropout_rate=0.3):
         super().__init__()
-        # Load MobileNetV3Large without pretrained weights (random init)
-        self.base_model = models.mobilenet_v3_large(weights=None)
+        if model_name == 'mobilenet_v3_small':
+            self.base_model = models.mobilenet_v3_small(weights=None)
+        elif model_name == 'mobilenet_v3_large':
+            self.base_model = models.mobilenet_v3_large(weights=None)
+        else:
+            raise ValueError(f"Unknown model_name '{model_name}'")
 
-        # Dynamically get the correct feature size
+        # Dynamically get the feature dimension
         feature_dim = self.base_model.classifier[0].in_features
 
-        # Replace classifier to match your number of classes
+        # Replace classifier with dropout
         self.base_model.classifier = nn.Sequential(
             nn.Flatten(),
-            nn.Linear(feature_dim, num_classes)  # 960 is the default final feature size
+            nn.Dropout(p=dropout_rate),
+            nn.Linear(feature_dim, num_classes)
         )
-
-        # Make sure all parameters are trainable (should be by default)
-        for param in self.parameters():
-            param.requires_grad = True
 
     def forward(self, x):
         return self.base_model(x)

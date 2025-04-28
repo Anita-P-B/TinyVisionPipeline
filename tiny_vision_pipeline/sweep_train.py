@@ -8,12 +8,13 @@ from tiny_vision_pipeline.utils.utils import log_metrics_dynamic
 import tiny_vision_pipeline
 from tiny_vision_pipeline.CONSTS import Config
 from tiny_vision_pipeline.main import main as run_training
-
+from tiny_vision_pipeline.utils.utils import merge_configs
 parser = argparse.ArgumentParser(description="Run a hyperparameter sweep.")
 parser.add_argument('--sweep_name', type=str, default="default",
                     help="Name for the sweep run folder.")
 parser.add_argument('--small_dataset', action='store_true',
                     help="Use the small dataset for quicker runs.")
+parser.add_argument('--epochs', type=int, default=None, help="Number of epochs in train.")
 args = parser.parse_args()
 
 # Compose sweep run directory
@@ -26,10 +27,17 @@ master_log_path = os.path.join(sweep_run_dir, "all_sweep_results.csv")
 # with open(master_log_path, mode="w", newline="") as log_file:
 # Define sweep options
 sweep_configs = [
-    {"LEARNING_RATE": 0.001},
-    { "LEARNING_RATE": 0.001, "BATCH_SIZE": 64 },
-    {  "LEARNING_RATE": 0.0005, "BATCH_SIZE": 32 },
-    {"LEARNING_RATE": 0.0005, "BATCH_SIZE": 64}
+    # No augmentation, varying weight decay and dropout
+    {"WEIGHT_DECAY": 0, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0},
+    {"WEIGHT_DECAY": 1e-4, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0},
+    {"WEIGHT_DECAY": 5e-4, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0},
+    {"WEIGHT_DECAY": 1e-4, "DROPOUT_RATE": 0.5, "AUGMENTATION_PROB": 0},
+
+    # Augmentation on, same variations
+    {"WEIGHT_DECAY": 0, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0.3},
+    {"WEIGHT_DECAY": 1e-4, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0.3},
+    {"WEIGHT_DECAY": 5e-4, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0.3},
+    {"WEIGHT_DECAY": 1e-4, "DROPOUT_RATE": 0.5, "AUGMENTATION_PROB": 0.3},
 ]
 
 
@@ -42,7 +50,8 @@ for i, config in enumerate(sweep_configs):
 
     consts.SWEEP_MODE = True
 
-    consts.update_from_dict(config)
+    merged_config = merge_configs(config, args)
+    consts.update_from_dict(merged_config)
 
     # Find changed keys
     changed = []
