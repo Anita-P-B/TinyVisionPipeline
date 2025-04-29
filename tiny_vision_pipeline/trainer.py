@@ -8,12 +8,13 @@ import matplotlib.pyplot as plt
 import json
 
 class Trainer:
-    def __init__(self, model, train_loader, val_loader, optimizer, criterion, run_dir, device='cpu'):
+    def __init__(self, model, train_loader, val_loader, optimizer, criterion, run_dir, scheduler = None, device='cpu'):
         self.model = model.to(device)
         self.train_loader = train_loader
         self.val_loader = val_loader
         self.optimizer = optimizer
         self.criterion = criterion
+        self.scheduler = scheduler
         self.device = device
         self.best_accuracy = 0.0
         self.run_dir = run_dir
@@ -122,6 +123,10 @@ class Trainer:
             train_loss, train_acc = self.train_step()
             val_loss, val_acc = self.eval_step()
 
+            if self.scheduler is not None:
+                # Scheduler step based on validation loss
+                self.scheduler.step(val_loss)
+
             # store training matrices
             self.train_losses.append(train_loss)
             self.train_accuracies.append(train_acc)
@@ -143,7 +148,8 @@ class Trainer:
                     torch.save({
                         'epoch': current_epoch,
                         'model_state_dict': self.model.state_dict(),
-                        'optimizer_state_dict': self.optimizer.state_dict()
+                        'optimizer_state_dict': self.optimizer.state_dict(),
+                        'scheduler_state_dict': self.scheduler.state_dict() if self.scheduler else None
                     },  full_path)
                     print(f"🧪 Best model saved: {full_path}")
 

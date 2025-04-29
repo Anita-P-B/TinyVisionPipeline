@@ -10,10 +10,17 @@ class Config:
         CLASSES=None,
         MODEL = "mobilenet_v3_small",  #| "mobilenet_v3_large" | "mobilenet_v3_small"
         LEARNING_RATE=1e-3,
+        SCHEDULER = False, # True, | False
         DROPOUT_RATE = 0.3,
         WEIGHT_DECAY = None,
         AUGMENTATION_PROB=0,
         NORM=None,  # None|"mean"
+
+        # scheduler config
+        MODE = "min",
+        FACTOR = 0.5,
+        PATIENCE = 5,
+        MIN_LR = 1e-6,
 
         #debug
         SMALL_DATASET = False,
@@ -42,10 +49,17 @@ class Config:
         ]
         self.MODEL = MODEL
         self.LEARNING_RATE = LEARNING_RATE
+        self.SCHEDULER = SCHEDULER
         self.DROPOUT_RATE = DROPOUT_RATE
         self.WEIGHT_DECAY = WEIGHT_DECAY
         self.AUGMENTATION_PROB = AUGMENTATION_PROB
         self.NORM = NORM
+
+        # scheduler config
+        self.MODE = MODE,
+        self.FACTOR = FACTOR,
+        self.PATIENCE = PATIENCE,
+        self.MIN_LR = MIN_LR,
 
         # debug
         self.SMALL_DATASET = SMALL_DATASET

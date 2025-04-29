@@ -151,3 +151,29 @@ def merge_configs(sweep_config, cli_args):
         if value is not None:
             merged[key.upper()] = value
     return merged
+
+
+def get_scheduler(optimizer, mode='min', factor=0.5, patience=5, min_lr=1e-6):
+    """
+    Creates a ReduceLROnPlateau scheduler.
+
+    Args:
+        optimizer: The optimizer to adjust.
+        mode: 'min' or 'max' depending on whether you are minimizing or maximizing the monitored quantity.
+        factor: How much to reduce the learning rate by. new_lr = old_lr * factor
+        patience: Number of epochs with no improvement after which learning rate will be reduced.
+        min_lr: Lower bound on the learning rate.
+
+    Returns:
+        A learning rate scheduler.
+    """
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer,
+        mode=mode[0],
+        factor=factor[0],
+        patience=patience[0],
+        min_lr=min_lr[0],
+        verbose=True  # So you see when it triggers!
+    )
+    return scheduler
+

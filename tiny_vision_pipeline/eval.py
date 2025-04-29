@@ -3,10 +3,13 @@ from torch.utils.data import DataLoader
 import os
 from tiny_vision_pipeline.CONSTS import CONSTS
 from tiny_vision_pipeline.evaluate import evaluate_model
-from tiny_vision_pipeline.models.MobileNetV3 import MyDragonModel
+from tiny_vision_pipeline.models.MobileNetV3 import DragonModel
 from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.utils import load_split_dataset
+from utils.utils import merge_configs
+from utils.convert_to_dict import DotDict
 import argparse
+import json
 
 parser = argparse.ArgumentParser(description="evaluate a trained model.")
 parser.add_argument('--eval_model_path', type=str, default=None,
@@ -15,10 +18,12 @@ args = parser.parse_args()
 
 eval_model_path = args.eval_model_path or CONSTS.LOAD_MODEL
 
-def evaluate_model_main(run_dir, eval_model_path,consts = None):
+def evaluate_model_main(run_dir, eval_model_path):
     # Load data
 
-    consts = consts or CONSTS
+    with open(fr'{run_dir}\train_config.json', 'r') as f:
+        train_configs = json.load(f)
+    consts = DotDict(train_configs)
 
     test_pipeline = get_transform(consts, is_training=False)
 
@@ -26,7 +31,7 @@ def evaluate_model_main(run_dir, eval_model_path,consts = None):
     test_loader = DataLoader(test_dataset, batch_size=consts.BATCH_SIZE)
 
     # Load model
-    model = MyDragonModel(num_classes=len(consts.CLASSES))
+    model = DragonModel(model_name = consts.MODEL, num_classes=len(consts.CLASSES))
     checkpoint = torch.load(eval_model_path)
     model.load_state_dict(checkpoint['model_state_dict'])
 

@@ -1,6 +1,7 @@
 import argparse
 import os
 from datetime import datetime
+from idlelib.colorizer import color_config
 
 import torch
 import torch.nn as nn
@@ -14,7 +15,7 @@ from tiny_vision_pipeline.trainer import Trainer
 from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.save_utils import save_run_state
 from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test, get_small_dataset
-from tiny_vision_pipeline.utils.utils import get_optimizer
+from tiny_vision_pipeline.utils.utils import get_optimizer, get_scheduler
 
 def main(consts=None, user_config=None):
     consts = consts or CONSTS
@@ -71,6 +72,12 @@ def main(consts=None, user_config=None):
     model = DragonModel(model_name = consts.MODEL, dropout_rate= consts.DROPOUT_RATE)
     # Define optimizer and loss
     optimizer = get_optimizer(model, consts.LEARNING_RATE, consts.WEIGHT_DECAY)
+    if consts.SCHEDULER:
+        scheduler = get_scheduler(optimizer, mode = consts.MODE,
+                                  factor= consts.FACTOR, patience= consts.PATIENCE,
+                                  min_lr= consts.MIN_LR)
+    else:
+        scheduler = None
     criterion = nn.CrossEntropyLoss()
 
     if not consts.SWEEP_MODE and consts.CHECKPOINT_PATH and os.path.isfile(consts.CHECKPOINT_PATH):
@@ -83,7 +90,9 @@ def main(consts=None, user_config=None):
             for k, v in state.items():
                 if isinstance(v, torch.Tensor):
                     state[k] = v.to(device)
-
+        if 'scheduler_state_dict' in checkpoint and scheduler is not None and checkpoint[
+            'scheduler_state_dict'] is not None:
+            scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         run_dir = os.path.dirname(consts.CHECKPOINT_PATH)
         start_epoch = checkpoint.get('epoch', 0)
         print(f"🔄 Resumed from epoch {start_epoch}")
@@ -100,7 +109,7 @@ def main(consts=None, user_config=None):
             data_split_df=split_df)
 
     # Initialize Trainer
-    trainer = Trainer(model, train_loader, val_loader, optimizer, criterion, run_dir,
+    trainer = Trainer(model, train_loader, val_loader, optimizer, criterion, run_dir, scheduler,
                       device='cuda' if torch.cuda.is_available() else 'cpu')
 
     print(f"📦 Using {'small' if consts.SMALL_DATASET else 'full'} dataset for this sweep.")
