@@ -11,9 +11,9 @@ class Config:
         MODEL = "mobilenet_v3_small",  #| "mobilenet_v3_large" | "mobilenet_v3_small"
         LEARNING_RATE=1e-3,
         SCHEDULER = False, # True, | False
-        DROPOUT_RATE = 0.3,
-        WEIGHT_DECAY = None,
-        AUGMENTATION_PROB=0,
+        DROPOUT_RATE = 0.5,
+        WEIGHT_DECAY = 1e-4,
+        AUGMENTATION_PROB=0.3,
         NORM=None,  # None|"mean"
 
         # scheduler config
@@ -21,6 +21,7 @@ class Config:
         FACTOR = 0.5,
         PATIENCE = 5,
         MIN_LR = 1e-6,
+        VERBOSE = True,
 
         #debug
         SMALL_DATASET = False,
@@ -60,6 +61,7 @@ class Config:
         self.FACTOR = FACTOR,
         self.PATIENCE = PATIENCE,
         self.MIN_LR = MIN_LR,
+        self.VERBOSE = VERBOSE
 
         # debug
         self.SMALL_DATASET = SMALL_DATASET

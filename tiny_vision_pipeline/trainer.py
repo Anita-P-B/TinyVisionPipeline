@@ -2,7 +2,7 @@ import os.path
 
 import torch
 from tqdm import tqdm
-
+from tiny_vision_pipeline.utils.utils import save_checkpoint
 
 import matplotlib.pyplot as plt
 import json
@@ -143,15 +143,19 @@ class Trainer:
                 self.best_accuracy = val_acc
                 if checkpoint_path:
 
-                    formatted_path = f"train_acc_{train_acc:.2f}_train_loss_{train_loss:.2f}_val_acc_{val_acc:.2f}val_loss_{val_loss:.2f}.pt"
-                    full_path = os.path.join(self.run_dir, formatted_path)
-                    torch.save({
-                        'epoch': current_epoch,
-                        'model_state_dict': self.model.state_dict(),
-                        'optimizer_state_dict': self.optimizer.state_dict(),
-                        'scheduler_state_dict': self.scheduler.state_dict() if self.scheduler else None
-                    },  full_path)
-                    print(f"🧪 Best model saved: {full_path}")
+                    # formatted_path = f"train_acc_{train_acc:.2f}_train_loss_{train_loss:.2f}_val_acc_{val_acc:.2f}val_loss_{val_loss:.2f}.pt"
+                    # full_path = os.path.join(self.run_dir, formatted_path)
+                    save_checkpoint(
+                        run_dir=self.run_dir,
+                        model=self.model,
+                        optimizer=self.optimizer,
+                        scheduler=self.scheduler,
+                        epoch=current_epoch,
+                        train_acc=train_acc,
+                        train_loss=train_loss,
+                        val_acc=val_acc,
+                        val_loss=val_loss
+                    )
 
             # Epoch summary
             print(f"Metrics for epoch {epoch + 1}: "

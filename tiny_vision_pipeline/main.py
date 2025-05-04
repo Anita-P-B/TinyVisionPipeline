@@ -75,7 +75,7 @@ def main(consts=None, user_config=None):
     if consts.SCHEDULER:
         scheduler = get_scheduler(optimizer, mode = consts.MODE,
                                   factor= consts.FACTOR, patience= consts.PATIENCE,
-                                  min_lr= consts.MIN_LR)
+                                  min_lr= consts.MIN_LR, print_lr_update=consts.VERBOSE)
     else:
         scheduler = None
     criterion = nn.CrossEntropyLoss()

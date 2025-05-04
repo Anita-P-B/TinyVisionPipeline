@@ -28,16 +28,17 @@ master_log_path = os.path.join(sweep_run_dir, "all_sweep_results.csv")
 # Define sweep options
 sweep_configs = [
     # No augmentation, varying weight decay and dropout
-    {"WEIGHT_DECAY": 0, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0},
-    {"WEIGHT_DECAY": 1e-4, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0},
-    {"WEIGHT_DECAY": 5e-4, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0},
-    {"WEIGHT_DECAY": 1e-4, "DROPOUT_RATE": 0.5, "AUGMENTATION_PROB": 0},
+    {"SCHEDULER": False},
+
+    {"SCHEDULER": True, "FACTOR":0.5, "PATIENCE":5, "MIN_LR":1e-6},
+    {"SCHEDULER": True, "FACTOR":0.3, "PATIENCE":3, "MIN_LR":1e-6},
+    {"SCHEDULER": True, "FACTOR":0.5, "PATIENCE":10, "MIN_LR":1e-6},
 
     # Augmentation on, same variations
-    {"WEIGHT_DECAY": 0, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0.3},
-    {"WEIGHT_DECAY": 1e-4, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0.3},
-    {"WEIGHT_DECAY": 5e-4, "DROPOUT_RATE": 0.3, "AUGMENTATION_PROB": 0.3},
-    {"WEIGHT_DECAY": 1e-4, "DROPOUT_RATE": 0.5, "AUGMENTATION_PROB": 0.3},
+    {"SCHEDULER": True, "FACTOR":0.7 , "PATIENCE":5, "MIN_LR": 1e-6},
+    {"SCHEDULER": True, "FACTOR": 0.7, "PATIENCE":10, "MIN_LR":1e-6},
+    {"SCHEDULER": True, "FACTOR": 0.5, "PATIENCE": 5, "MIN_LR": 1e-5},
+    {"SCHEDULER": True, "FACTOR":0.5 , "PATIENCE":5 , "MIN_LR":1e-7},
 ]
 
 

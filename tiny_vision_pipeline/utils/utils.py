@@ -153,7 +153,7 @@ def merge_configs(sweep_config, cli_args):
     return merged
 
 
-def get_scheduler(optimizer, mode='min', factor=0.5, patience=5, min_lr=1e-6):
+def get_scheduler(optimizer, mode='min', factor=0.5, patience=5, min_lr=1e-6, print_lr_update=True):
     """
     Creates a ReduceLROnPlateau scheduler.
 
@@ -167,13 +167,62 @@ def get_scheduler(optimizer, mode='min', factor=0.5, patience=5, min_lr=1e-6):
     Returns:
         A learning rate scheduler.
     """
+    # Normalize inputs: accept either values or tuples
+    mode = mode[0] if isinstance(mode, tuple) else mode
+    factor = factor[0] if isinstance(factor, tuple) else factor
+    patience = patience[0] if isinstance(patience, tuple) else patience
+    min_lr = min_lr[0] if isinstance(min_lr, tuple) else min_lr
+
     scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
         optimizer,
-        mode=mode[0],
-        factor=factor[0],
-        patience=patience[0],
-        min_lr=min_lr[0],
-        verbose=True  # So you see when it triggers!
+        mode=mode,
+        factor=factor,
+        patience=patience,
+        min_lr=min_lr
     )
+
+    # if print_lr_update:
+    #     original_step = scheduler.step
+    #
+    #     def wrapped_step(metrics, epoch=None):
+    #         old_lrs = scheduler.optimizer.param_groups[0]["lr"]
+    #         original_step(metrics, epoch)
+    #         new_lrs = scheduler.optimizer.param_groups[0]["lr"]
+    #         if new_lrs != old_lrs:
+    #             print(f"🔁 LR updated: {old_lrs:.6f} → {new_lrs:.6f} due to no improvement.")
+    #
+    #     scheduler.step = wrapped_step
     return scheduler
+
+def save_checkpoint(run_dir, model, optimizer, scheduler, epoch, train_acc, train_loss, val_acc, val_loss, extra_info=None):
+    """
+    Save model checkpoint with flexible metadata.
+
+    Parameters:
+        run_dir (str): Directory to save the checkpoint in.
+        model (torch.nn.Module): The model to save.
+        optimizer (torch.optim.Optimizer): The optimizer used.
+        scheduler (optional): The learning rate scheduler used.
+        epoch (int): Current epoch number.
+        train_acc (float): Training accuracy.
+        train_loss (float): Training loss.
+        val_acc (float): Validation accuracy.
+        val_loss (float): Validation loss.
+        extra_info (dict, optional): Additional items to include in the checkpoint.
+    """
+    filename = f"train_acc_{train_acc:.2f}_train_loss_{train_loss:.2f}_val_acc_{val_acc:.2f}_val_loss_{val_loss:.2f}.pt"
+    full_path = os.path.join(run_dir, filename)
+
+    checkpoint = {
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'scheduler_state_dict': scheduler.state_dict() if scheduler else None
+    }
+
+    if extra_info:
+        checkpoint.update(extra_info)
+
+    torch.save(checkpoint, full_path)
+    print(f"🧪 Best model saved: {full_path}")
 
