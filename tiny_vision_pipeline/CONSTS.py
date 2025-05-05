@@ -6,11 +6,11 @@ class Config:
         IMAGE_SIZE=64,
         CHANNELS=3,
         BATCH_SIZE=32,
-        EPOCHS=50,
+        EPOCHS=100,
         CLASSES=None,
         MODEL = "mobilenet_v3_small",  #| "mobilenet_v3_large" | "mobilenet_v3_small"
         LEARNING_RATE=1e-3,
-        SCHEDULER = False, # True, | False
+        SCHEDULER = True, # True, | False
         DROPOUT_RATE = 0.5,
         WEIGHT_DECAY = 1e-4,
         AUGMENTATION_PROB=0.3,
@@ -18,8 +18,8 @@ class Config:
 
         # scheduler config
         MODE = "min",
-        FACTOR = 0.5,
-        PATIENCE = 5,
+        FACTOR = 0.7,
+        PATIENCE = 10,
         MIN_LR = 1e-6,
         VERBOSE = True,
 

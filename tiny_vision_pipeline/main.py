@@ -17,6 +17,7 @@ from tiny_vision_pipeline.utils.save_utils import save_run_state
 from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test, get_small_dataset
 from tiny_vision_pipeline.utils.utils import get_optimizer, get_scheduler
 
+
 def main(consts=None, user_config=None):
     consts = consts or CONSTS
 
@@ -69,15 +70,10 @@ def main(consts=None, user_config=None):
                              num_workers=0)  # after debugginh change to num_workers = os.cpu_count() // 2
 
     # Define your model
-    model = DragonModel(model_name = consts.MODEL, dropout_rate= consts.DROPOUT_RATE)
+    model = DragonModel(model_name=consts.MODEL, dropout_rate=consts.DROPOUT_RATE)
     # Define optimizer and loss
     optimizer = get_optimizer(model, consts.LEARNING_RATE, consts.WEIGHT_DECAY)
-    if consts.SCHEDULER:
-        scheduler = get_scheduler(optimizer, mode = consts.MODE,
-                                  factor= consts.FACTOR, patience= consts.PATIENCE,
-                                  min_lr= consts.MIN_LR, print_lr_update=consts.VERBOSE)
-    else:
-        scheduler = None
+    scheduler = None
     criterion = nn.CrossEntropyLoss()
 
     if not consts.SWEEP_MODE and consts.CHECKPOINT_PATH and os.path.isfile(consts.CHECKPOINT_PATH):
@@ -90,14 +86,24 @@ def main(consts=None, user_config=None):
             for k, v in state.items():
                 if isinstance(v, torch.Tensor):
                     state[k] = v.to(device)
-        if 'scheduler_state_dict' in checkpoint and scheduler is not None and checkpoint[
-            'scheduler_state_dict'] is not None:
+        if ('scheduler_state_dict' in checkpoint and checkpoint['scheduler_state_dict']
+                is not None):
+            scheduler = get_scheduler(optimizer, mode=checkpoint.get('scheduler_mode', 'min'),
+                                      factor=checkpoint.get('factor', 0.5),
+                                      patience=checkpoint.get('patience', 5),
+                                      min_lr=checkpoint.get('min_lr', 1e-6)
+                                      )
             scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
         run_dir = os.path.dirname(consts.CHECKPOINT_PATH)
         start_epoch = checkpoint.get('epoch', 0)
         print(f"🔄 Resumed from epoch {start_epoch}")
     else:
         print("🛡️ No checkpoint provided, starting from scratch.")
+        if consts.SCHEDULER:
+
+            scheduler = get_scheduler(optimizer, mode=consts.MODE,
+                                      factor=consts.FACTOR, patience=consts.PATIENCE,
+                                      min_lr=consts.MIN_LR)
         start_epoch = 0
         # make a run_dir to save training parameters
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
@@ -110,6 +116,7 @@ def main(consts=None, user_config=None):
 
     # Initialize Trainer
     trainer = Trainer(model, train_loader, val_loader, optimizer, criterion, run_dir, scheduler,
+                      verbose_lr= consts.VERBOSE,
                       device='cuda' if torch.cuda.is_available() else 'cpu')
 
     print(f"📦 Using {'small' if consts.SMALL_DATASET else 'full'} dataset for this sweep.")

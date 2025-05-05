@@ -153,7 +153,7 @@ def merge_configs(sweep_config, cli_args):
     return merged
 
 
-def get_scheduler(optimizer, mode='min', factor=0.5, patience=5, min_lr=1e-6, print_lr_update=True):
+def get_scheduler(optimizer, mode='min', factor=0.5, patience=5, min_lr=1e-6):
     """
     Creates a ReduceLROnPlateau scheduler.
 
@@ -181,17 +181,6 @@ def get_scheduler(optimizer, mode='min', factor=0.5, patience=5, min_lr=1e-6, pr
         min_lr=min_lr
     )
 
-    # if print_lr_update:
-    #     original_step = scheduler.step
-    #
-    #     def wrapped_step(metrics, epoch=None):
-    #         old_lrs = scheduler.optimizer.param_groups[0]["lr"]
-    #         original_step(metrics, epoch)
-    #         new_lrs = scheduler.optimizer.param_groups[0]["lr"]
-    #         if new_lrs != old_lrs:
-    #             print(f"🔁 LR updated: {old_lrs:.6f} → {new_lrs:.6f} due to no improvement.")
-    #
-    #     scheduler.step = wrapped_step
     return scheduler
 
 def save_checkpoint(run_dir, model, optimizer, scheduler, epoch, train_acc, train_loss, val_acc, val_loss, extra_info=None):
