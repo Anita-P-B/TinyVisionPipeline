@@ -2,7 +2,7 @@ import torch
 from torch.utils.data import DataLoader
 import os
 from tiny_vision_pipeline.CONSTS import CONSTS
-from tiny_vision_pipeline.evaluate import evaluate_model
+from tiny_vision_pipeline.evaluate import ModelEvaluator
 from tiny_vision_pipeline.models.MobileNetV3 import DragonModel
 from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.utils import load_split_dataset
@@ -39,10 +39,15 @@ def evaluate_model_main(run_dir, eval_model_path):
 
     # Evaluate
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    evaluate_model(model, test_loader, run_dir = run_dir, class_names= consts.CLASSES,
-                   device=device, plot_examples= True, num_images= 9)
+    evaluator = ModelEvaluator(model, dataloader=test_loader, run_dir=run_dir,
+                               class_names=consts.CLASSES, device=device, plot_examples=True)
+    evaluator.evaluate_model()
+    evaluator.save_results()
+    evaluator.plot_examples_grid()
 
 
 if __name__ == '__main__':
+
+
     run_dir = os.path.dirname(eval_model_path)
     evaluate_model_main(run_dir, eval_model_path)

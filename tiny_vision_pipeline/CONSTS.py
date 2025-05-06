@@ -6,7 +6,7 @@ class Config:
         IMAGE_SIZE=64,
         CHANNELS=3,
         BATCH_SIZE=32,
-        EPOCHS=100,
+        EPOCHS=200,
         CLASSES=None,
         MODEL = "mobilenet_v3_small",  #| "mobilenet_v3_large" | "mobilenet_v3_small"
         LEARNING_RATE=1e-3,
