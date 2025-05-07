@@ -16,6 +16,7 @@ from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.save_utils import save_run_state
 from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test, get_small_dataset
 from tiny_vision_pipeline.utils.utils import get_optimizer, get_scheduler
+from tiny_vision_pipeline.utils.utils import make_new_run_dir
 
 
 def main(consts=None, user_config=None):
@@ -76,6 +77,7 @@ def main(consts=None, user_config=None):
     scheduler = None
     criterion = nn.CrossEntropyLoss()
 
+    #checkpoint_path = os.path.normpath(consts.CHECKPOINT_PATH)
     if not consts.SWEEP_MODE and consts.CHECKPOINT_PATH and os.path.isfile(consts.CHECKPOINT_PATH):
         print(f"🧙‍♂️ Loading checkpoint from {consts.CHECKPOINT_PATH}")
         checkpoint = torch.load(consts.CHECKPOINT_PATH)
@@ -94,7 +96,9 @@ def main(consts=None, user_config=None):
                                       min_lr=checkpoint.get('min_lr', 1e-6)
                                       )
             scheduler.load_state_dict(checkpoint['scheduler_state_dict'])
-        run_dir = os.path.dirname(consts.CHECKPOINT_PATH)
+
+        run_dir = make_new_run_dir(consts.CHECKPOINT_PATH)
+
         start_epoch = checkpoint.get('epoch', 0)
         print(f"🔄 Resumed from epoch {start_epoch}")
     else:

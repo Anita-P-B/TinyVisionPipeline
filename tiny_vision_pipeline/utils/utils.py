@@ -8,6 +8,9 @@ from torch.utils.data import Subset
 from torch.utils.data import random_split
 from tiny_vision_pipeline.datasets.data_loader import load_datasets
 from tiny_vision_pipeline.datasets.cifar_warpper import CIFAR10Wrapped
+from datetime import datetime
+import os
+import shutil
 
 def create_split_df(x_train_np, y_train_np, x_test_np, y_test_np, val_ratio=0.8, seed=42):
     # Train part
@@ -214,4 +217,31 @@ def save_checkpoint(run_dir, model, optimizer, scheduler, epoch, train_acc, trai
 
     torch.save(checkpoint, full_path)
     print(f"🧪 Best model saved: {full_path}")
+
+def make_new_run_dir(chekpoint_path):
+    original_run_dir = os.path.dirname(chekpoint_path)
+    original_base = os.path.basename(original_run_dir)
+    base_path = os.path.dirname(original_run_dir)
+    if "_run_" in original_base:
+        base_name = original_base.split("_run_")[0]
+    else:
+        base_name = original_base
+
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M")
+    new_save_path= f"{base_name}_resume_{timestamp}"
+    new_run_dir = os.path.join(base_path,new_save_path)
+    os.makedirs(new_run_dir, exist_ok=True)
+    print(f"✅ Created new folder: {new_run_dir}")
+
+    files_to_copy = ["train_config.json", "data_split.csv"]
+    for filename in files_to_copy:
+        src_path = os.path.join(original_run_dir, filename)
+        dst_path = os.path.join(new_run_dir, filename)
+        if os.path.isfile(src_path):
+            shutil.copy2(src_path, dst_path)
+            print(f"📁 Copied {filename}")
+        else:
+            print(f"⚠️ Warning: {filename} not found in {original_run_dir}")
+    return new_run_dir
+
 
