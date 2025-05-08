@@ -6,6 +6,7 @@ experiments/
 sweeps/
 samples/
 __pycache__/
+*.egg-info/
 
 # Compiled files
 *.py[cod]

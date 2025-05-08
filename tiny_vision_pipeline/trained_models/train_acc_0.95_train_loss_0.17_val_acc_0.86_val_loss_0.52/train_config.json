@@ -1,0 +1,46 @@
+{
+    "IMAGE_SIZE": 64,
+    "CHANNELS": 3,
+    "BATCH_SIZE": 32,
+    "EPOCHS": 100,
+    "CLASSES": [
+        "airplane",
+        "automobile",
+        "bird",
+        "cat",
+        "deer",
+        "dog",
+        "frog",
+        "horse",
+        "ship",
+        "truck"
+    ],
+    "MODEL": "mobilenet_v3_small",
+    "LEARNING_RATE": 0.001,
+    "SCHEDULER": true,
+    "DROPOUT_RATE": 0.5,
+    "WEIGHT_DECAY": 0.0001,
+    "AUGMENTATION_PROB": 0.5,
+    "NORM": null,
+    "MODE": [
+        "min"
+    ],
+    "FACTOR": [
+        0.7
+    ],
+    "PATIENCE": [
+        10
+    ],
+    "MIN_LR": [
+        1e-06
+    ],
+    "VERBOSE": true,
+    "SMALL_DATASET": false,
+    "SAVE_PATH": "sweep_augmentation_prob0.5",
+    "LOAD_MODEL": ".\\experiments\\no_aug_no_mean_norm_run_20250423_150921/no_aug_no_mean_norm_run_20250423_150921_acc_0.4339_loss_1.7053.pt",
+    "RUN_DIR_BASE": "sweeps\\sweep_augmentations_20250506_1600",
+    "CHECKPOINT_PATH": null,
+    "SPLIT_SEED": 42,
+    "VAL_RATIO": 0.8,
+    "SWEEP_MODE": true
+}
