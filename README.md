@@ -54,14 +54,15 @@ python main.py --save_path "your_model_name"
 ```
 4. To test a trained project:
 
-Update the trained model name and path in CONST file:
+Update the trained model path in CONST file (optinal):
 ```
-LOAD_MODEL = "my_trained_model.pt"
-LOAD_PATH = "my\trained\model\folder"
+RUN_DIR_BASE = "my\trained\model\folder"
 ```
+If not updated the model folder will be created in ./ecperiments folder.
+
 Then run:
 ```commandline
-python eval.py
+python eval.py --eval_model_path "trained\model\checkpoint\path"
 ```
 The evaluation results will be saved at the folder containing the model.
 
