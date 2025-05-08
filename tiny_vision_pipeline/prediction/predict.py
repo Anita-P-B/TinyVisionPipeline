@@ -10,7 +10,7 @@ from tiny_vision_pipeline.prediction.custom_dataset import CustomImageDataset
 from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.convert_to_dict import DotDict
 from tiny_vision_pipeline.utils.utils import load_split_dataset
-from tiny_vision_pipeline.vizualization_utils import plot_predictions
+from tiny_vision_pipeline.utils.vizualization_utils import plot_predictions
 
 def predict(args):
     model_dir = os.path.dirname(args.model_path)
