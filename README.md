@@ -58,7 +58,7 @@ Update the trained model path in CONST file (optinal):
 ```
 RUN_DIR_BASE = "my\trained\model\folder"
 ```
-If not updated the model folder will be created in ./ecperiments folder.
+If not updated the model folder will be created in ./experiments folder.
 
 Then run:
 ```commandline
