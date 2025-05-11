@@ -30,7 +30,12 @@ git clone https://github.com/Anita-P-B/TinyVisionPipeline.git
 cd TinyVisionPipeline 
 ```
 
-2. Install the package locally
+2. Create a Virtual Environment
+```bash
+python -m venv venv
+venv\Scripts\activate  
+```
+3. Install the package locally
 
 First, activate your virtual environment.
 Then install the following:
@@ -51,7 +56,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 3. Start training 
 ```bash
-python main.py --save_path "your_model_name"
+python tiny_vision_pipeline/main.py --save_path "your_model_name"
 ```
 📝 This will automatically create a new folder named "your_model_name" inside the experiments/ directory.
 
@@ -89,7 +94,7 @@ It’s useful for developers who want deeper insight into model performance.
 #### 🚀 Usage
 
 ```bash
-python evaluate/eval_summary.py  --eval_model_path "your/model/path.pt" 
+python tiny_vision_pipeline/evaluate/eval_summary.py  --eval_model_path "your/model/path.pt" 
 ```
 Replace "your/model/path.pt" with the path to your model's best checkpoint.
 
@@ -132,12 +137,12 @@ The script will automatically resize and preprocess your images to match the mod
 1️⃣ Test on CIFAR-10 test set:
 
 ```bash 
-python prediction/predict.py --test
+python tiny_vision_pipeline/prediction/predict.py --test
 ```
 
 2️⃣ Test on your own custom images:
 ```bash
-python predict.py --custom_test "path/to/your/images"
+python tiny_vision_pipeline/prediction/predict.py --custom_test "path/to/your/images"
 ```
 (Replace path/to/your/images with the path to your image folder.)
 
