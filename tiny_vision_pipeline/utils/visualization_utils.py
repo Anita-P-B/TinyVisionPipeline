@@ -23,8 +23,7 @@ def plot_predictions(images, preds, confidences, class_names, model_dir):
 
     plt.suptitle(f"Predictions", fontsize=16)
     plt.tight_layout(rect=[0, 0, 1, 0.95])
-    save_path = os.path.join(model_dir, "trained_model_predictions.png")
-    #plt.savefig(save_path)
+
     plt.show()
     plt.close()
-    # print(f"🖼️ {title} predictions plot saved to: {save_path}")
+

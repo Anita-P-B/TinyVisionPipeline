@@ -1,7 +1,6 @@
 import argparse
 import os
 from datetime import datetime
-from idlelib.colorizer import color_config
 
 import torch
 import torch.nn as nn
@@ -64,11 +63,11 @@ def main(consts=None, user_config=None):
         cifar_train, cifar_val = get_small_dataset(cifar_train, cifar_val)
 
     train_loader = DataLoader(cifar_train, batch_size=consts.BATCH_SIZE, shuffle=True,
-                              num_workers=0)  # after debugginh change to num_workers = os.cpu_count() // 2
+                              num_workers=0) # Currently using num_workers=0 for debugging; consider changing to os.cpu_count() // 2 for performance
     val_loader = DataLoader(cifar_val, batch_size=32,
-                            num_workers=0)  # after debugginh change to num_workers = os.cpu_count() // 2
+                            num_workers=0)
     test_loader = DataLoader(cifar_test, batch_size=32,
-                             num_workers=0)  # after debugginh change to num_workers = os.cpu_count() // 2
+                             num_workers=0)
 
     # Define your model
     model = DragonModel(model_name=consts.MODEL, dropout_rate=consts.DROPOUT_RATE)
@@ -77,7 +76,7 @@ def main(consts=None, user_config=None):
     scheduler = None
     criterion = nn.CrossEntropyLoss()
 
-    #checkpoint_path = os.path.normpath(consts.CHECKPOINT_PATH)
+    # checkpoint_path = os.path.normpath(consts.CHECKPOINT_PATH)
     if not consts.SWEEP_MODE and consts.CHECKPOINT_PATH and os.path.isfile(consts.CHECKPOINT_PATH):
         print(f"🧙‍♂️ Loading checkpoint from {consts.CHECKPOINT_PATH}")
         checkpoint = torch.load(consts.CHECKPOINT_PATH)
@@ -104,7 +103,6 @@ def main(consts=None, user_config=None):
     else:
         print("🛡️ No checkpoint provided, starting from scratch.")
         if consts.SCHEDULER:
-
             scheduler = get_scheduler(optimizer, mode=consts.MODE,
                                       factor=consts.FACTOR, patience=consts.PATIENCE,
                                       min_lr=consts.MIN_LR)
@@ -120,7 +118,7 @@ def main(consts=None, user_config=None):
 
     # Initialize Trainer
     trainer = Trainer(model, train_loader, val_loader, optimizer, criterion, run_dir, scheduler,
-                      verbose_lr= consts.VERBOSE,
+                      verbose_lr=consts.VERBOSE,
                       device='cuda' if torch.cuda.is_available() else 'cpu')
 
     print(f"📦 Using {'small' if consts.SMALL_DATASET else 'full'} dataset for this sweep.")
@@ -131,10 +129,10 @@ def main(consts=None, user_config=None):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Train a model")
     parser.add_argument('--small_dataset', action='store_true', default=None,
-                        help="train on 0.1 portion of the dataset for debug.")
+                        help= "Train on a small subset (10%) of the dataset for debugging purposes.")
     parser.add_argument('--save_path', type=str, default=None, help="Path to save the model.")
     parser.add_argument('--checkpoint_path', type=str, default=None, help="resumes training from "
-                                                                          "given chekpoint.")
+                                                                          "given checkpoint.")
     parser.add_argument('--epochs', type=int, default=None, help="Number of epochs in train.")
     args = parser.parse_args()
 

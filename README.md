@@ -9,7 +9,8 @@ TinyVisionPipeline/
 ├── tiny_vision_pipeline/
 │   ├── datasets/        # Data loading and preprocessing
 │   ├── model/           # Model architecture
-│   ├── prediction/      # Test and visulalize predictions of trained models
+│   ├── prediction/      # Scripts for visualizing model predictions on images
+│   ├── evaluate/        # Scripts and utilities for evaluating trained models
 │   ├── trained_models/  # Saved trained models
 │   ├── Utils/           # Utility functions
 │   └── main.py          # Training logic and checkpointing
@@ -24,8 +25,8 @@ TinyVisionPipeline/
 ## 🚀 Getting Started
 1. Clone the repository
 
-```
-git clone https://github.com/yourusername/TinyVisionPipeline.git
+```bash
+git clone https://github.com/Anita-P-B/TinyVisionPipeline.git
 cd TinyVisionPipeline 
 ```
 
@@ -33,7 +34,7 @@ cd TinyVisionPipeline
 
 First, activate your virtual environment.
 Then install the following:
-```
+```bash
 pip install -e .
 pip install -r requirements.txt
 ```
@@ -49,23 +50,12 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 
 
 3. Start training 
-```commandline
+```bash
 python main.py --save_path "your_model_name"
 ```
-4. To test a trained project:
+📝 This will automatically create a new folder named "your_model_name" inside the experiments/ directory.
 
-Update the trained model path in CONST file (optinal):
-```
-RUN_DIR_BASE = "my\trained\model\folder"
-```
-If not updated the model folder will be created in ./experiments folder.
-
-Then run:
-```commandline
-python eval.py --eval_model_path "trained\model\checkpoint\path"
-```
-The evaluation results will be saved at the folder containing the model.
-
+All training logs and model checkpoints will be saved there by default.
 
 ## 🔧 Features
 
@@ -77,26 +67,52 @@ The evaluation results will be saved at the folder containing the model.
 
 ✅ Model testing & visualization
 
-## 🔮 Model testing and visualization Utility
+## 🔍 Evaluation vs. Prediction
+
+This project includes two utility scripts that allow you to work with trained models in different ways:
+
+- eval_summary.py  – For developers and model trainers.
+Run this to evaluate a trained model on the test set, with detailed class-wise accuracy and confidence metrics. Useful for inspecting model performance after training.
+
+- predict.py – For general users or demos.
+Run this to predict labels on test or custom images using an existing trained model. Ideal for quick visual checks or exploring predictions without digging into performance details.
+
+### 📊 Evaluation Utility (eval_summary.py)
+The `eval_summary.py` script runs your trained model on the CIFAR-10 test set and prints:
+
+- Overall accuracy
+- Class-wise accuracy
+- Class confidence levels
+
+It’s useful for developers who want deeper insight into model performance.
+
+#### 🚀 Usage
+
+```bash
+python evaluate/eval_summary.py  --eval_model_path "your/model/path.pt" 
+```
+Replace "your/model/path.pt" with the path to your model's best checkpoint.
+
+### 🔮 Prediction Utility (predict.py)
 
 The predict.py allows you to test your trained model easily by displaying predictions on images.
 
 🔍 What it does:
 - Loads your trained model.
 
-- Runs predictions on 9 images.
+- Runs predictions on 9 random images.
 
 - Displays a grid with:
 
-    - The image,
+    - The image
     
-    - The predicted label,
+    - The predicted label
     
     - The confidence score (probability).
 
 This is useful for quickly checking that your model works as expected after training!
 
-### ⚙️ Command-line options
+#### ⚙️ Command-line options
 You have two testing modes:
 
 | Option          | What it does                                                        |
@@ -104,24 +120,26 @@ You have two testing modes:
 | `--test`        | Tests your model on 9 **random images from the CIFAR-10 test set.** |
 | `--custom_test` | Tests your model on 9 **custom images** from your chosen folder.    |
 
-### 🖼️ Custom images requirements
+#### 🖼️ Custom images requirements
 Images should be placed in a folder you specify.
 
-Supported standardize formatting (.jpg, .jpeg, .png).
+Supported formats: .jpg, .jpeg, .png
 
-Make sure your custom images are compatible in size (the script will preprocess them to match the model input).
+The script will automatically resize and preprocess your images to match the model input.
 
-### 🚀 Usage examples
+#### 🚀 Usage examples
 
 1️⃣ Test on CIFAR-10 test set:
 
-```python prediction\predict.py --test```
+```bash 
+python prediction/predict.py --test
+```
 
 2️⃣ Test on your own custom images:
+```bash
+python predict.py --custom_test "path/to/your/images"
 ```
-python predict.py --custom_test path/to/your/images
-```
-(Replace path/to/your/images with your folder path.)
+(Replace path/to/your/images with the path to your image folder.)
 
 ✅ Pro tip:
 If your model was saved on a GPU but you're running on CPU now, no worries—predict.py automatically handles the device (CPU/GPU) for smooth running.
