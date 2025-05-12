@@ -1,5 +1,5 @@
 # 🐉 TinyVisionPipeline
-A simple, modular deep learning pipeline for image classification using PyTorch and the CIFAR-10 dataset.
+A clean, modular deep learning pipeline for image classification using PyTorch and the CIFAR-10 dataset.
 
 This project serves as a template and demonstration for building a clean computer vision pipeline — from data loading and preprocessing to model training, evaluation, and saving.
 
@@ -21,7 +21,10 @@ TinyVisionPipeline/
 ├── setup.py
 └── .gitignore
 ```
+## 🐍 Python Version
 
+This project was developed and tested with **Python 3.10**.  
+Other 3.x versions *may* work, but Python 3.10 is recommended for compatibility.
 ## 🚀 Getting Started
 1. Clone the repository
 
@@ -54,7 +57,7 @@ pip install torch torchvision torchaudio --index-url https://download.pytorch.or
 ````
 
 
-3. Start training 
+4. Start training 
 ```bash
 python tiny_vision_pipeline/main.py --save_path "your_model_name"
 ```
@@ -100,7 +103,7 @@ Replace "your/model/path.pt" with the path to your model's best checkpoint.
 
 ### 🔮 Prediction Utility (predict.py)
 
-The predict.py allows you to test your trained model easily by displaying predictions on images.
+The `predict.py` script allows you to test your trained model easily by displaying predictions on images.
 
 🔍 What it does:
 - Loads your trained model.
@@ -128,7 +131,7 @@ You have two testing modes:
 #### 🖼️ Custom images requirements
 Images should be placed in a folder you specify.
 
-Supported formats: .jpg, .jpeg, .png
+Supported formats: `.jpg`, `.jpeg`, `.png`
 
 The script will automatically resize and preprocess your images to match the model input.
 
@@ -144,7 +147,7 @@ python tiny_vision_pipeline/prediction/predict.py --test
 ```bash
 python tiny_vision_pipeline/prediction/predict.py --custom_test "path/to/your/images"
 ```
-(Replace path/to/your/images with the path to your image folder.)
+*(Replace "path/to/your/images" with the actual path to your image folder.)*
 
 ✅ Pro tip:
 If your model was saved on a GPU but you're running on CPU now, no worries—predict.py automatically handles the device (CPU/GPU) for smooth running.
@@ -152,4 +155,8 @@ If your model was saved on a GPU but you're running on CPU now, no worries—pre
 ## 📜 License
 
 This project is released under the MIT License.
-Use, learn, remix — but give credit where due. ⚔️✨
+Use, learn, remix — just give credit where it’s due. ⚔️✨
+
+---
+
+May your dragons fly true 🐉✨ — and your models converge smoothly.
