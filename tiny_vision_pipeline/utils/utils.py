@@ -4,6 +4,7 @@ import csv
 import numpy as np
 import pandas as pd
 import torch
+import torch.nn as nn
 from torch.utils.data import Subset
 from torch.utils.data import random_split
 from tiny_vision_pipeline.datasets.data_loader import load_datasets
@@ -186,7 +187,8 @@ def get_scheduler(optimizer, mode='min', factor=0.5, patience=5, min_lr=1e-6):
 
     return scheduler
 
-def save_checkpoint(run_dir, model, optimizer, scheduler, epoch, train_acc, train_loss, val_acc, val_loss, extra_info=None):
+def save_checkpoint(run_dir, model, optimizer, scheduler,
+                    epoch, train_acc, train_loss, val_acc, val_loss, extra_info=None):
     """
     Save model checkpoint with flexible metadata.
 
@@ -202,7 +204,7 @@ def save_checkpoint(run_dir, model, optimizer, scheduler, epoch, train_acc, trai
         val_loss (float): Validation loss.
         extra_info (dict, optional): Additional items to include in the checkpoint.
     """
-    filename = f"train_acc_{train_acc:.2f}_train_loss_{train_loss:.2f}_val_acc_{val_acc:.2f}_val_loss_{val_loss:.2f}.pt"
+    filename = f"train_acc_{train_acc:.2f}_train_loss_{train_loss:.2f}_val_acc_{val_acc:.2f}_val_loss_{val_loss:.2f}_epoch_{epoch}.pt"
     full_path = os.path.join(run_dir, filename)
 
     checkpoint = {
@@ -244,4 +246,12 @@ def make_new_run_dir(chekpoint_path):
             print(f"⚠️ Warning: {filename} not found in {original_run_dir}")
     return new_run_dir
 
+def get_loss_func(consts, device):
+    if consts.CLASS_WEIGHTS is None:
+        class_weights_tensor = torch.ones(len(consts.CLASSES),  dtype=torch.float32).to(device)
+    else:
+        class_weights_tensor = torch.tensor( consts.CLASS_WEIGHTS, dtype=torch.float32).to(device)
+
+    loss_function = nn.CrossEntropyLoss(weight=class_weights_tensor)
+    return loss_function
 

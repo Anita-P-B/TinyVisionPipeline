@@ -14,7 +14,7 @@ from tiny_vision_pipeline.trainer import Trainer
 from tiny_vision_pipeline.transfor_config import get_transform
 from tiny_vision_pipeline.utils.save_utils import save_run_state
 from tiny_vision_pipeline.utils.utils import create_split_df, split_val_test, get_small_dataset
-from tiny_vision_pipeline.utils.utils import get_optimizer, get_scheduler
+from tiny_vision_pipeline.utils.utils import get_optimizer, get_scheduler, get_loss_func
 from tiny_vision_pipeline.utils.utils import make_new_run_dir
 
 
@@ -54,10 +54,11 @@ def main(consts=None, user_config=None):
 
     # Wrap the full test set
     full_test_dataset = CIFAR10Wrapped(x_test_np, y_test_np, transform=val_pipeline)
-    offset = len(x_train_np)
-
-    cifar_val, cifar_test = split_val_test(split_df, full_test_dataset, offset)
     cifar_train = CIFAR10Wrapped(x_train_np, y_train_np, transform=train_pipeline)
+
+    offset = len(x_train_np)
+    cifar_val, cifar_test = split_val_test(split_df, full_test_dataset, offset)
+
 
     if consts.SMALL_DATASET:
         cifar_train, cifar_val = get_small_dataset(cifar_train, cifar_val)
@@ -74,7 +75,7 @@ def main(consts=None, user_config=None):
     # Define optimizer and loss
     optimizer = get_optimizer(model, consts.LEARNING_RATE, consts.WEIGHT_DECAY)
     scheduler = None
-    criterion = nn.CrossEntropyLoss()
+    criterion = get_loss_func(consts, device)
 
     # checkpoint_path = os.path.normpath(consts.CHECKPOINT_PATH)
     if not consts.SWEEP_MODE and consts.CHECKPOINT_PATH and os.path.isfile(consts.CHECKPOINT_PATH):
@@ -119,7 +120,8 @@ def main(consts=None, user_config=None):
     # Initialize Trainer
     trainer = Trainer(model, train_loader, val_loader, optimizer, criterion, run_dir, scheduler,
                       verbose_lr=consts.VERBOSE,
-                      device='cuda' if torch.cuda.is_available() else 'cpu')
+                      device='cuda' if torch.cuda.is_available() else 'cpu',
+                      debug = consts.DEBUG)
 
     print(f"📦 Using {'small' if consts.SMALL_DATASET else 'full'} dataset for this sweep.")
     # Train
@@ -130,6 +132,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="Train a model")
     parser.add_argument('--small_dataset', action='store_true', default=None,
                         help= "Train on a small subset (10%) of the dataset for debugging purposes.")
+    parser.add_argument('--debug', action='store_true', default=None,
+                        help="Allows prints for debug purposes.")
     parser.add_argument('--save_path', type=str, default=None, help="Path to save the model.")
     parser.add_argument('--checkpoint_path', type=str, default=None, help="resumes training from "
                                                                           "given checkpoint.")

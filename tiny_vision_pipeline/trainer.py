@@ -7,9 +7,13 @@ from tiny_vision_pipeline.utils.utils import save_checkpoint
 import matplotlib.pyplot as plt
 import json
 import pandas as pd
+import torch.nn.functional as F
 
 class Trainer:
-    def __init__(self, model, train_loader, val_loader, optimizer, criterion, run_dir, scheduler = None, verbose_lr = False,device='cpu'):
+    def __init__(self, model, train_loader, val_loader, optimizer, criterion,
+                 run_dir, scheduler = None, verbose_lr = False,device='cpu',
+                 debug = False):
+        # train configs
         self.model = model.to(device)
         self.train_loader = train_loader
         self.val_loader = val_loader
@@ -20,12 +24,19 @@ class Trainer:
         self.device = device
         self.best_accuracy = 0.0
         self.run_dir = run_dir
+        self.class_weights = self.criterion.weight
+
         # training metrics
         self.train_losses = []
         self.train_accuracies = []
         self.val_losses = []
         self.val_accuracies = []
         self.lr_history = []
+        self.top_checkpoints = []
+        self.number_top_checkpoints = 3 # how many top checkpoints to save
+
+        # debug
+        self.debug = debug
 
     def train_step(self):
         self.model.train()
@@ -38,6 +49,14 @@ class Trainer:
 
 
             outputs = self.model(images)
+            if self.debug:
+                with torch.no_grad():
+                    log_probs = F.log_softmax(outputs, dim=1)
+                    target_log_probs = log_probs[torch.arange(len(labels)), labels]
+                    sample_weights = self.class_weights[labels]
+                    weighted_losses = -sample_weights * target_log_probs
+                    print("Weighted loss per sample:", weighted_losses)
+                    print("Mean loss:", weighted_losses.mean().item())
             loss = self.criterion(outputs, labels)
 
             self.optimizer.zero_grad()
@@ -189,23 +208,26 @@ class Trainer:
             print(f"Val Loss:  {val_loss:.4f}, Accuracy: {val_acc:.4f}")
 
             # Save best checkpoint
-            if val_acc > self.best_accuracy:
-                self.best_accuracy = val_acc
-                if not checkpoint_path:
-                    raise ValueError("⚠️ Cannot save checkpoint: `checkpoint_path` is not set or is empty.")
 
-
-                save_checkpoint(
-                    run_dir=self.run_dir,
-                    model=self.model,
-                    optimizer=self.optimizer,
-                    scheduler=self.scheduler,
-                    epoch=current_epoch,
-                    train_acc=train_acc,
-                    train_loss=train_loss,
-                    val_acc=val_acc,
-                    val_loss=val_loss
-                )
+            self.save_best_checkpoint(train_acc, val_acc, train_loss, val_loss,
+                                      checkpoint_path, current_epoch)
+            # if val_acc > self.best_accuracy:
+            #     self.best_accuracy = val_acc
+            #     if not checkpoint_path:
+            #         raise ValueError("⚠️ Cannot save checkpoint: `checkpoint_path` is not set or is empty.")
+            #
+            #
+            #     save_checkpoint(
+            #         run_dir=self.run_dir,
+            #         model=self.model,
+            #         optimizer=self.optimizer,
+            #         scheduler=self.scheduler,
+            #         epoch=current_epoch,
+            #         train_acc=train_acc,
+            #         train_loss=train_loss,
+            #         val_acc=val_acc,
+            #         val_loss=val_loss
+            #     )
 
             # Epoch summary
             print(f"Metrics for epoch {epoch + 1}: "
@@ -224,3 +246,40 @@ class Trainer:
         }
         with open(os.path.join(self.run_dir, "final_metrics.json"), "w") as f:
             json.dump(final_metrics, f, indent=4)
+
+    def save_best_checkpoint(self, train_acc,val_acc, train_loss, val_loss,
+                             checkpoint_path, current_epoch):
+        # Save if eligible for top 3
+        if len(self.top_checkpoints) <  self.number_top_checkpoints or val_acc > min(acc for acc, _ in self.top_checkpoints):
+            # Save new checkpoint
+            if not checkpoint_path:
+                raise ValueError("⚠️ Cannot save checkpoint: `checkpoint_path` is not set or is empty.")
+
+            # Save checkpoint to a file named with val_acc and epoch
+            filename = f"train_acc_{train_acc:.2f}_train_loss_{train_loss:.2f}_val_acc_{val_acc:.2f}_val_loss_{val_loss:.2f}_epoch_{current_epoch}.pt"
+            full_path = os.path.join(self.run_dir, filename)
+
+            save_checkpoint(
+                run_dir=self.run_dir,
+                model=self.model,
+                optimizer=self.optimizer,
+                scheduler=self.scheduler,
+                epoch=current_epoch,
+                train_acc=train_acc,
+                train_loss=train_loss,
+                val_acc=val_acc,
+                val_loss=val_loss
+            )
+
+            # Add to list
+            self.top_checkpoints.append((val_acc, full_path))
+
+            # Keep only top 3
+            self.top_checkpoints.sort(reverse=True, key=lambda x: x[0])  # Highest val_acc first
+
+            if len(self.top_checkpoints) >  self.number_top_checkpoints:
+                worst_acc, worst_path = self.top_checkpoints.pop()
+                if os.path.exists(worst_path):
+                    os.remove(worst_path)
+                    if self.debug:
+                        print(f"🧹 Removed old checkpoint: {worst_path}")

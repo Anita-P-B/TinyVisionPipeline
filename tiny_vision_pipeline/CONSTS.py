@@ -8,6 +8,7 @@ class Config:
         BATCH_SIZE=32,
         EPOCHS=100,
         CLASSES=None,
+        CLASS_WEIGHTS= [1,2,1,1,1 ,1,1,1,1,1],
         MODEL = "mobilenet_v3_small",  # Options: "mobilenet_v3_small", "mobilenet_v3_large"
         LEARNING_RATE=1e-3,
         SCHEDULER = True, # Set to False to disable learning rate scheduler
@@ -25,6 +26,7 @@ class Config:
 
         # Debug
         SMALL_DATASET = False,
+        DEBUG = False,
 
         # Paths
         SAVE_PATH="test",
@@ -49,6 +51,7 @@ class Config:
             "airplane", "automobile", "bird", "cat", "deer",
             "dog", "frog", "horse", "ship", "truck"
         ]
+        self.CLASS_WEIGHTS = CLASS_WEIGHTS
         self.MODEL = MODEL
         self.LEARNING_RATE = LEARNING_RATE
         self.SCHEDULER = SCHEDULER
@@ -66,6 +69,7 @@ class Config:
 
         # Debug
         self.SMALL_DATASET = SMALL_DATASET
+        self.DEBUG = DEBUG
 
         # Paths
         self.SAVE_PATH = SAVE_PATH
